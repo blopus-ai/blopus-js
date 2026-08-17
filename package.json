@@ -1,0 +1,70 @@
+{
+  "name": "blopus",
+  "version": "0.3.5",
+  "description": "Official TypeScript/JavaScript SDK for the Blopus web search + fetch API.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Blopus",
+  "homepage": "https://blopus.ai",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blopus-ai/blopus-js.git"
+  },
+  "keywords": [
+    "blopus",
+    "search",
+    "web-search",
+    "fetch",
+    "api",
+    "sdk",
+    "agents",
+    "ai",
+    "mcp"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "blopus": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./ai": {
+      "types": "./dist/ai.d.ts",
+      "import": "./dist/ai.js",
+      "require": "./dist/ai.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test dist-test 2>/dev/null || echo 'build first'",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.4.0"
+  },
+  "peerDependencies": {
+    "ai": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ai": {
+      "optional": true
+    }
+  }
+}

@@ -33,6 +33,12 @@ export interface SearchParams {
    * it off when the answer may live in documentation, reference material or forums.
    * Omitting it searches everything, which is always safe.
    */
+  /**
+   * Only return results whose body has at least this many words (1-5000).
+   * About 10-17% of the index is under 120 words: tag listings, stubs and
+   * photo captions, which rank on keywords without answering anything.
+   */
+  min_words?: number;
   news_only?: boolean;
   /**
    * Ranking preference, NOT a filter (that is `freshness`). "normal" leans recent,

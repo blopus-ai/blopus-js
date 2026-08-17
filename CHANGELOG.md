@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.8
+
+- Add `min_words` to `search()` and to the Vercel AI tool schema. Only return results whose
+  body has at least that many words. Measured: 10.2% of the news index and 17.3% of the rest
+  index are under 120 words.
+
 ## 0.3.7
 
 - Normalise the `bin` path to `dist/cli.js`. npm rejects the `./` prefix and auto-corrects it,

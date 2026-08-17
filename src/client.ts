@@ -149,6 +149,7 @@ export class Blopus {
     if (params.include_excerpt) body.include_excerpt = true;
     if (params.excerpt_chars !== undefined) body.excerpt_chars = params.excerpt_chars;
     // only sent when true: an older gateway would reject an unknown field
+    if (params.min_words) body.min_words = params.min_words;
     if (params.news_only) body.news_only = true;
     if (params.recency !== undefined) body.recency = params.recency;
     if (params.include_content) body.include_content = true;

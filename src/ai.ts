@@ -74,6 +74,15 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
           description:
             "Recency filter. Use 'pd'/'pw' for time-sensitive queries; 'all' otherwise.",
         },
+        min_words: {
+          type: "number",
+          description:
+            "Only return pages with at least this many words. Set 120 when the user " +
+            "wants something to READ - analysis, background, a comparison, 'explain', " +
+            "'how does'. About 10-17% of the index is tag listings and stubs that rank " +
+            "on keywords without answering anything. Leave unset for breaking news, " +
+            "where a two-line wire story is a legitimate answer.",
+        },
         news_only: {
           type: "boolean",
           description:
@@ -122,6 +131,7 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
       query,
       freshness: f,
       news_only,
+      min_words,
       recency,
       include_content,
       count: c,
@@ -131,6 +141,7 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
       query: string;
       freshness?: Freshness;
       news_only?: boolean;
+      min_words?: number;
       recency?: "normal" | "relaxed" | "off";
       include_content?: boolean;
       count?: number;
@@ -139,7 +150,7 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
     }) => {
       const res = await client.search({
         // the model may ask for more; `count` from the factory stays the default
-        query, count: c ?? count, freshness: f ?? freshness, news_only, recency,
+        query, count: c ?? count, freshness: f ?? freshness, news_only, min_words, recency,
         include_content, include_domains, exclude_domains,
       });
       return {

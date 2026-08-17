@@ -1,6 +1,6 @@
 {
   "name": "blopus",
-  "version": "0.3.5",
+  "version": "0.3.7",
   "description": "Official TypeScript/JavaScript SDK for the Blopus web search + fetch API.",
   "type": "module",
   "license": "MIT",
@@ -8,7 +8,7 @@
   "homepage": "https://blopus.ai",
   "repository": {
     "type": "git",
-    "url": "https://github.com/blopus-ai/blopus-js.git"
+    "url": "git+https://github.com/blopus-ai/blopus-js.git"
   },
   "keywords": [
     "blopus",
@@ -28,7 +28,7 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "blopus": "./dist/cli.js"
+    "blopus": "dist/cli.js"
   },
   "exports": {
     ".": {

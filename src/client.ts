@@ -8,6 +8,8 @@ import type {
   FetchResult,
   SearchParams,
   SearchResponse,
+  Topic,
+  TopicsResponse,
 } from "./types.js";
 import { VERSION } from "./version.js";
 
@@ -78,6 +80,15 @@ export class Blopus {
   }
 
   private async post<T>(path: string, body: unknown): Promise<T> {
+    return this.request<T>("POST", path, body);
+  }
+
+  private async get<T>(path: string): Promise<T> {
+    return this.request<T>("GET", path);
+  }
+
+  /** Shared transport: one retry/backoff/typed-error policy for every verb. */
+  private async request<T>(method: string, path: string, body?: unknown): Promise<T> {
     let attempt = 0;
     // eslint-disable-next-line no-constant-condition
     while (true) {
@@ -90,14 +101,15 @@ export class Blopus {
         let resp: Response;
         try {
           resp = await this._fetch(`${this.baseUrl}${path}`, {
-            method: "POST",
+            method,
             headers: {
               Authorization: `Bearer ${this.apiKey}`,
               "User-Agent": this.userAgent,
               "Content-Type": "application/json",
               Accept: "application/json",
             },
-            body: JSON.stringify(body),
+            // A GET carries no body; sending one is rejected by some runtimes.
+            ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
             signal: controller.signal,
           });
         } finally {
@@ -155,7 +167,21 @@ export class Blopus {
     if (params.include_content) body.include_content = true;
     if (params.content_chars !== undefined) body.content_chars = params.content_chars;
     if (params.include_images) body.include_images = true;
+    if (params.topics?.length) body.topics = params.topics;
+    if (params.exclude_topics?.length) body.exclude_topics = params.exclude_topics;
     return this.post<SearchResponse>("/v1/search", body);
+  }
+
+  /**
+   * Valid values for `topics` / `exclude_topics`.
+   *
+   * Free — this call is not billed. Worth fetching once at startup and caching: topics
+   * are matched exactly, so an unknown value returns zero results, which you cannot
+   * distinguish from a genuine no-match unless you know the vocabulary.
+   */
+  async topics(minDocs = 1000): Promise<Topic[]> {
+    const d = await this.get<TopicsResponse>(`/v1/topics?min_docs=${encodeURIComponent(String(minDocs))}`);
+    return d.topics ?? [];
   }
 
   /**

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.5.0
+
+### Added
+- `topics` / `exclude_topics` on `search()`, plus CLI `--topics` / `--exclude-topics`.
+- `client.topics(minDocs)` and the `blopus topics` command, returning the vocabulary you may
+  pass. **Not billed** — topics are matched exactly, so an unknown value returns zero results,
+  which is indistinguishable from a genuine no-match unless the vocabulary is published.
+- `Topic` / `TopicsResponse` types; the Vercel AI tool exposes both filters.
+
+### Fixed
+- `npm test` never actually ran the suite: it pointed at a `dist-test` directory that was
+  never built and silently fell back to `echo 'build first'`. It now compiles and runs.
+
+### Internal
+- `post()` and the new `get()` share one `request()` transport, so retry, backoff and typed
+  errors have a single implementation. Covered by the existing retry/error tests.
+
+
 ## 0.4.0
 
 ### Added

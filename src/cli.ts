@@ -34,7 +34,7 @@ const KNOWN_FLAGS = new Set([
   "count", "freshness", "recency", "news-only", "offset", "language",
   "include-domains", "exclude-domains", "start-date", "end-date",
   "include-excerpt", "excerpt-chars", "include-content", "content-chars",
-  "min-words", "include-images",
+  "min-words", "include-images", "topics", "exclude-topics", "min-docs",
   "json", "api-key", "base-url", "no-verify", "help", "version",
 ]);
 
@@ -171,6 +171,9 @@ Search flags:                       (--flag value and --flag=value both work)
                                tag listings; leave off for breaking news)
   --include-images             hero image URL per result (coverage is partial,
                                so some results will have none)
+  --topics a,b                 only publications covering these topics
+  --exclude-topics a,b         drop publications covering these topics
+                               (run: blopus topics -- for valid values)
   --json                       raw JSON
 
 --news-only — use it for EVENTS:
@@ -375,6 +378,8 @@ async function main(argv: string[]): Promise<number> {
       content_chars: num(flags["content-chars"], "content-chars"),
       min_words: num(flags["min-words"], "min-words"),
       include_images: flags["include-images"] === true || undefined,
+      topics: csv(flags.topics),
+      exclude_topics: csv(flags["exclude-topics"]),
     });
     if (flags.json) {
       console.log(JSON.stringify(res, null, 2));
@@ -394,6 +399,23 @@ async function main(argv: string[]): Promise<number> {
       if (res.remaining_quota != null) {
         console.error(`[remaining quota: ${res.remaining_quota}]`);
       }
+    }
+    return 0;
+  }
+
+  if (cmd === "topics") {
+    // Valid values for --topics / --exclude-topics. Not billed: topics are matched
+    // exactly, so without a published vocabulary a wrong guess is indistinguishable
+    // from a genuine no-match.
+    const minDocs = num(flags["min-docs"], "min-docs") ?? 1000;
+    const items = await client.topics(minDocs);
+    if (flags.json) {
+      console.log(JSON.stringify(items, null, 2));
+    } else {
+      for (const t of items) {
+        console.log(`${String(t.documents).padStart(12)}  ${t.topic}`);
+      }
+      console.error(`\n[${items.length} topics with >= ${minDocs} documents]`);
     }
     return 0;
   }

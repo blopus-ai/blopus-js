@@ -9,6 +9,19 @@ The SDK calls only two data-plane endpoints: `POST /v1/search` and
 `POST /v1/fetch` on `https://api.blopus.ai`.
 
 
+
+### Topic filters
+
+```ts
+const vocab = await client.topics(100000);     // free, not billed
+await client.search({ query: "data breach", topics: ["cybersecurity"] });
+await client.search({ query: "world cup", exclude_topics: ["sports"] });
+```
+
+Topics are matched **exactly**, so an unknown value returns zero results — call `topics()`
+rather than guessing. A topic describes what a **publication** covers, not what an individual
+article is about.
+
 ### Images
 
 ```ts

@@ -54,11 +54,35 @@ export interface SearchParams {
   /** Cap on inline content length per result, up to 8000. */
   content_chars?: number;
   /**
+   * Only return results from publications covering these topics. Matched EXACTLY
+   * against the published vocabulary (see `client.topics()`), so an unknown value
+   * returns nothing rather than silently widening the search.
+   *
+   * A topic describes what a PUBLICATION covers, not what an individual article is
+   * about: `["ai"]` means "pages from AI-focused sites", broader than "pages about AI".
+   */
+  topics?: string[];
+  /** Drop results from publications covering these topics. */
+  exclude_topics?: string[];
+  /**
    * Return a hero image URL on each result. Off by default: it costs roughly 295
    * tokens per 10 results, which matters when the caller is a language model.
    * Coverage is partial, so `image` is null on plenty of hits.
    */
   include_images?: boolean;
+}
+
+/** One entry in the topic vocabulary returned by `client.topics()`. */
+export interface Topic {
+  topic: string;
+  documents: number;
+}
+
+/** Response from `GET /v1/topics`. */
+export interface TopicsResponse {
+  topics: Topic[];
+  count: number;
+  min_docs: number;
 }
 
 /** One search hit. */

@@ -83,6 +83,21 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
             "on keywords without answering anything. Leave unset for breaking news, " +
             "where a two-line wire story is a legitimate answer.",
         },
+        topics: {
+          type: "array",
+          items: { type: "string" },
+          description:
+            "Only return results from publications covering these topics, e.g. " +
+            "['cybersecurity']. IMPORTANT: a topic describes what a PUBLICATION covers, " +
+            "not what an individual article is about - ['ai'] means 'pages from " +
+            "AI-focused sites', which is broader than 'pages about AI'. Values are " +
+            "matched exactly and unknown topics match nothing, so do not guess.",
+        },
+        exclude_topics: {
+          type: "array",
+          items: { type: "string" },
+          description: "Drop results from publications covering these topics, e.g. ['sports'].",
+        },
         include_images: {
           type: "boolean",
           description:
@@ -141,6 +156,8 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
       freshness: f,
       news_only,
       min_words,
+      topics,
+      exclude_topics,
       include_images,
       recency,
       include_content,
@@ -152,6 +169,8 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
       freshness?: Freshness;
       news_only?: boolean;
       min_words?: number;
+      topics?: string[];
+      exclude_topics?: string[];
       include_images?: boolean;
       recency?: "normal" | "relaxed" | "off";
       include_content?: boolean;
@@ -163,6 +182,7 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
         // the model may ask for more; `count` from the factory stays the default
         query, count: c ?? count, freshness: f ?? freshness, news_only, min_words, recency,
         include_content, include_domains, exclude_domains, include_images,
+        topics, exclude_topics,
       });
       return {
         results: res.results.map((r) => ({

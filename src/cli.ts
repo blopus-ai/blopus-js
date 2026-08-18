@@ -34,13 +34,15 @@ const KNOWN_FLAGS = new Set([
   "count", "freshness", "recency", "news-only", "offset", "language",
   "include-domains", "exclude-domains", "start-date", "end-date",
   "include-excerpt", "excerpt-chars", "include-content", "content-chars",
+  "min-words", "include-images", "topics", "exclude-topics", "min-docs",
   "json", "api-key", "base-url", "no-verify", "help", "version",
 ]);
 
 // Flags that take no value. `--news-only` and `--news-only=false` must both behave
 // sensibly — Boolean("false") is true, so the value form needs real parsing.
 const BOOL_FLAGS = new Set([
-  "news-only", "include-excerpt", "include-content", "json", "no-verify", "help", "version",
+  "news-only", "include-excerpt", "include-content", "include-images",
+  "json", "no-verify", "help", "version",
 ]);
 
 function parseArgs(argv: string[]): Flags {
@@ -165,6 +167,16 @@ Search flags:                       (--flag value and --flag=value both work)
   --include-content            full text inline, no second call
                                (cheaper than fetching each result)
   --content-chars N            cap inline content length
+  --min-words N                only pages with >= N words (120 drops stubs and
+                               tag listings; leave off for breaking news)
+  --include-images             hero image URL per result (coverage is partial,
+                               so some results will have none)
+  --topics a,b                 only publications covering these topics. A topic is
+                               what a PUBLICATION covers, not what an article is
+                               about. Exact match: unknown topics return NOTHING
+  --exclude-topics a,b         drop publications covering these topics
+                               (run: blopus topics, or see
+                               https://blopus.ai/docs/topics)
   --json                       raw JSON
 
 --news-only — use it for EVENTS:
@@ -367,6 +379,10 @@ async function main(argv: string[]): Promise<number> {
       excerpt_chars: num(flags["excerpt-chars"], "excerpt-chars"),
       include_content: flags["include-content"] === true || undefined,
       content_chars: num(flags["content-chars"], "content-chars"),
+      min_words: num(flags["min-words"], "min-words"),
+      include_images: flags["include-images"] === true || undefined,
+      topics: csv(flags.topics),
+      exclude_topics: csv(flags["exclude-topics"]),
     });
     if (flags.json) {
       console.log(JSON.stringify(res, null, 2));
@@ -376,11 +392,33 @@ async function main(argv: string[]): Promise<number> {
         console.log(`${i + 1}. ${r.title}`);
         console.log(`   ${r.url}`);
         if (r.snippet) console.log(`   ${r.snippet}`);
+        // only when asked for AND present — partial coverage is normal
+        if (r.image) {
+          const dims = r.image_w && r.image_h ? ` (${r.image_w}x${r.image_h})` : "";
+          console.log(`   image: ${r.image}${dims}`);
+        }
         console.log();
       });
       if (res.remaining_quota != null) {
         console.error(`[remaining quota: ${res.remaining_quota}]`);
       }
+    }
+    return 0;
+  }
+
+  if (cmd === "topics") {
+    // Valid values for --topics / --exclude-topics. Not billed: topics are matched
+    // exactly, so without a published vocabulary a wrong guess is indistinguishable
+    // from a genuine no-match.
+    const minDocs = num(flags["min-docs"], "min-docs") ?? 1000;
+    const items = await client.topics(minDocs);
+    if (flags.json) {
+      console.log(JSON.stringify(items, null, 2));
+    } else {
+      for (const t of items) {
+        console.log(`${String(t.documents).padStart(12)}  ${t.topic}`);
+      }
+      console.error(`\n[${items.length} topics with >= ${minDocs} documents]`);
     }
     return 0;
   }

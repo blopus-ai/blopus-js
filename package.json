@@ -1,6 +1,6 @@
 {
   "name": "blopus",
-  "version": "0.3.7",
+  "version": "0.5.1",
   "description": "Official TypeScript/JavaScript SDK for the Blopus web search + fetch API.",
   "type": "module",
   "license": "MIT",
@@ -51,7 +51,7 @@
   "scripts": {
     "build": "tsup",
     "typecheck": "tsc --noEmit",
-    "test": "node --test dist-test 2>/dev/null || echo 'build first'",
+    "test": "tsc test/*.test.ts src/*.ts --outDir dist-test --target es2022 --module nodenext --moduleResolution nodenext --skipLibCheck && node --test dist-test/test/*.test.js",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {

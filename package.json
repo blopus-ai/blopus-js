@@ -1,6 +1,6 @@
 {
   "name": "blopus",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Official TypeScript/JavaScript SDK for the Blopus web search + fetch API.",
   "type": "module",
   "license": "MIT",

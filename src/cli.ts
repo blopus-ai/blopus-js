@@ -171,9 +171,12 @@ Search flags:                       (--flag value and --flag=value both work)
                                tag listings; leave off for breaking news)
   --include-images             hero image URL per result (coverage is partial,
                                so some results will have none)
-  --topics a,b                 only publications covering these topics
+  --topics a,b                 only publications covering these topics. A topic is
+                               what a PUBLICATION covers, not what an article is
+                               about. Exact match: unknown topics return NOTHING
   --exclude-topics a,b         drop publications covering these topics
-                               (run: blopus topics -- for valid values)
+                               (run: blopus topics, or see
+                               https://blopus.ai/docs/topics)
   --json                       raw JSON
 
 --news-only — use it for EVENTS:

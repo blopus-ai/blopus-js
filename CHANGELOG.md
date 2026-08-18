@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0
+
+### Added
+- `include_images` on `search()` and CLI `--include-images`. Returns a hero image URL per
+  result. Off by default: roughly 295 extra tokens per 10 results. Coverage is partial, so
+  `result.image` is null on plenty of hits — check before use.
+- `SearchResult.image`, `.image_w`, `.image_h`, and `.word_count`.
+- The Vercel AI tool now exposes `include_images` and returns `word_count`, so a model can
+  see a stub before reading it.
+- CLI `--min-words`, which the library supported but the CLI never exposed.
+
+
 ## 0.3.8
 
 - Add `min_words` to `search()` and to the Vercel AI tool schema. Only return results whose

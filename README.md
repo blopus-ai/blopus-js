@@ -8,6 +8,27 @@ Works in Node 18+, edge runtimes, and modern browsers (uses global `fetch`).
 The SDK calls only two data-plane endpoints: `POST /v1/search` and
 `POST /v1/fetch` on `https://api.blopus.ai`.
 
+
+### Images
+
+```ts
+const res = await client.search({ query: "tesla factory", include_images: true });
+for (const r of res.results) {
+  if (r.image) console.log(r.title, r.image, `${r.image_w}x${r.image_h}`);
+}
+```
+
+Off by default — it costs roughly 295 tokens per 10 results. Coverage is partial, so `image`
+is `null` on plenty of hits. Never promise a picture before you have a non-null URL.
+
+### Filtering out stubs
+
+Every result carries `word_count`. `min_words` turns that into a filter:
+
+```ts
+await client.search({ query: "how does raft consensus work", min_words: 120 });
+```
+
 ## Install
 
 ```bash

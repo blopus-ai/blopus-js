@@ -53,6 +53,12 @@ export interface SearchParams {
   include_content?: boolean;
   /** Cap on inline content length per result, up to 8000. */
   content_chars?: number;
+  /**
+   * Return a hero image URL on each result. Off by default: it costs roughly 295
+   * tokens per 10 results, which matters when the caller is a language model.
+   * Coverage is partial, so `image` is null on plenty of hits.
+   */
+  include_images?: boolean;
 }
 
 /** One search hit. */
@@ -76,6 +82,19 @@ export interface SearchResult {
    * flag it is absent, which is why it is optional rather than nullable.
    */
   content?: string | null;
+  /**
+   * Body length in words. Always returned, so you can see that a hit is a 40-word
+   * stub before reading it — this is what makes `min_words` self-evident.
+   */
+  word_count?: number | null;
+  /**
+   * Hero image URL — populated only when the request set `include_images`, and
+   * null whenever the page has no hero. Always check it before use.
+   */
+  image?: string | null;
+  /** Hero image dimensions in pixels, when the crawler recorded them. */
+  image_w?: number | null;
+  image_h?: number | null;
 }
 
 /** Response from `POST /v1/search`. */

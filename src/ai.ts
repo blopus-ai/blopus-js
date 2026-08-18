@@ -83,6 +83,15 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
             "on keywords without answering anything. Leave unset for breaking news, " +
             "where a two-line wire story is a legitimate answer.",
         },
+        include_images: {
+          type: "boolean",
+          description:
+            "Set true ONLY when the user actually asked to see a picture. Returns a hero " +
+            "image URL per result and costs roughly 295 extra tokens per 10 results. " +
+            "Image coverage is partial and in BETA, so treat a null image as normal " +
+            "rather than an error, and never promise the user a picture before you have " +
+            "a non-null URL in hand.",
+        },
         news_only: {
           type: "boolean",
           description:
@@ -132,6 +141,7 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
       freshness: f,
       news_only,
       min_words,
+      include_images,
       recency,
       include_content,
       count: c,
@@ -142,6 +152,7 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
       freshness?: Freshness;
       news_only?: boolean;
       min_words?: number;
+      include_images?: boolean;
       recency?: "normal" | "relaxed" | "off";
       include_content?: boolean;
       count?: number;
@@ -151,7 +162,7 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
       const res = await client.search({
         // the model may ask for more; `count` from the factory stays the default
         query, count: c ?? count, freshness: f ?? freshness, news_only, min_words, recency,
-        include_content, include_domains, exclude_domains,
+        include_content, include_domains, exclude_domains, include_images,
       });
       return {
         results: res.results.map((r) => ({
@@ -159,8 +170,12 @@ export async function blopusSearchTool(options: BlopusToolOptions = {}): Promise
           url: r.url,
           snippet: r.snippet,
           score: r.score,
+          // always returned: lets the model see a stub before it reads one
+          word_count: r.word_count,
           // only present when include_content was requested
           ...(r.content ? { content: r.content } : {}),
+          // only when include_images was requested AND the page actually has one
+          ...(r.image ? { image: r.image, image_w: r.image_w, image_h: r.image_h } : {}),
         })),
         remaining_quota: res.remaining_quota,
       };

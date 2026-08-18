@@ -154,6 +154,7 @@ export class Blopus {
     if (params.recency !== undefined) body.recency = params.recency;
     if (params.include_content) body.include_content = true;
     if (params.content_chars !== undefined) body.content_chars = params.content_chars;
+    if (params.include_images) body.include_images = true;
     return this.post<SearchResponse>("/v1/search", body);
   }
 

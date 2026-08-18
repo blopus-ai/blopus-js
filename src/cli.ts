@@ -34,13 +34,15 @@ const KNOWN_FLAGS = new Set([
   "count", "freshness", "recency", "news-only", "offset", "language",
   "include-domains", "exclude-domains", "start-date", "end-date",
   "include-excerpt", "excerpt-chars", "include-content", "content-chars",
+  "min-words", "include-images",
   "json", "api-key", "base-url", "no-verify", "help", "version",
 ]);
 
 // Flags that take no value. `--news-only` and `--news-only=false` must both behave
 // sensibly — Boolean("false") is true, so the value form needs real parsing.
 const BOOL_FLAGS = new Set([
-  "news-only", "include-excerpt", "include-content", "json", "no-verify", "help", "version",
+  "news-only", "include-excerpt", "include-content", "include-images",
+  "json", "no-verify", "help", "version",
 ]);
 
 function parseArgs(argv: string[]): Flags {
@@ -165,6 +167,10 @@ Search flags:                       (--flag value and --flag=value both work)
   --include-content            full text inline, no second call
                                (cheaper than fetching each result)
   --content-chars N            cap inline content length
+  --min-words N                only pages with >= N words (120 drops stubs and
+                               tag listings; leave off for breaking news)
+  --include-images             hero image URL per result (coverage is partial,
+                               so some results will have none)
   --json                       raw JSON
 
 --news-only — use it for EVENTS:
@@ -367,6 +373,8 @@ async function main(argv: string[]): Promise<number> {
       excerpt_chars: num(flags["excerpt-chars"], "excerpt-chars"),
       include_content: flags["include-content"] === true || undefined,
       content_chars: num(flags["content-chars"], "content-chars"),
+      min_words: num(flags["min-words"], "min-words"),
+      include_images: flags["include-images"] === true || undefined,
     });
     if (flags.json) {
       console.log(JSON.stringify(res, null, 2));
@@ -376,6 +384,11 @@ async function main(argv: string[]): Promise<number> {
         console.log(`${i + 1}. ${r.title}`);
         console.log(`   ${r.url}`);
         if (r.snippet) console.log(`   ${r.snippet}`);
+        // only when asked for AND present — partial coverage is normal
+        if (r.image) {
+          const dims = r.image_w && r.image_h ? ` (${r.image_w}x${r.image_h})` : "";
+          console.log(`   image: ${r.image}${dims}`);
+        }
         console.log();
       });
       if (res.remaining_quota != null) {
